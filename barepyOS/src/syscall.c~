@@ -1,0 +1,58 @@
+#include "syscall.h"
+#include "util.h"
+
+#define PANIC() do { kernel_panic(__FILE__,__LINE__) ; } while(0)
+//#define ASSERT(exp) do { if(!(exp)) PANIC(); } while(0)
+
+
+void
+C_swi_handler(void)
+{
+    __asm("stmfd sp!,{lr}^");
+    int N;
+    __asm("mov %0, r0" : "=r" (N));
+
+    switch(N)
+    {
+        case 1:
+            do_sys_reboot();
+            break;
+        case 2:
+            do_sys_nop();
+            break;
+        default:
+            PANIC();
+            break;
+    }
+    __asm("ldmfd sp!,{lr}^");
+    __asm("add sp, sp, #16");
+    __asm("bx lr");
+    
+}
+
+void
+sys_reboot(void)
+{
+    __asm("mov r0, #1");
+    __asm("swi #0");
+}
+
+void
+do_sys_reboot(void)
+{
+    __asm("b 0x8000");
+}
+
+void
+sys_nop(void)
+{
+    __asm("mov r0, #2");
+    __asm("swi #0");
+}
+
+void
+do_sys_nop(void)
+{
+}
+
+
