@@ -4,8 +4,8 @@
 #include "syscall.h"
 #include "util.h"
 #include "hw.h"
+#include "sched.h"
 #include <stdint.h>
-
 
 void __attribute__((naked)) C_swi_handler(void);
 void sys_reboot(void);

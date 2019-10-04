@@ -1,15 +1,4 @@
-struct pcb_s{
+//#include "sched.h"
 
-}pcb_s
-
-void
-sys_yieldto(struct pcb_s* dest)
-{
-
-}
-
-void
-do_sys_yieldto()
-{
-
-}
+struct pcb_s *current_process;
+//struct pcb_s kmain_process;

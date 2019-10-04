@@ -1,4 +1,8 @@
 #include "syscall.h"
+//#include "sched.h"
+
+struct pcb_s pcb1, pcb2;
+struct pcb_s *p1, *p2;
 
 void
 kmain(void)
@@ -7,8 +11,12 @@ kmain(void)
     //**************************************************
     //Userland
     
-    uint64_t date = sys_gettime();
-    date++;
+    //sched_init();
+    
+    p1=&pcb1;
+    p2=&pcb2;
+    
+    sys_yieldto(p1);
 
     sys_reboot();
 }
