@@ -6,6 +6,10 @@
 #define PANIC() do { kernel_panic(__FILE__,__LINE__) ; } while(0)
 //#define ASSERT(exp) do { if(!(exp)) PANIC(); } while(0)
 
+struct pcb_s{
+
+}pcb_s
+
 
 void __attribute__((naked))
 C_swi_handler(void)
@@ -32,6 +36,10 @@ C_swi_handler(void)
         case 4:
             __asm("mov r0, sp");
             do_sys_gettime();
+            break;
+        case 5:
+            __asm("mov r0, sp");
+            do_sys_yieldto();
             break;
         default:
             PANIC();
@@ -114,5 +122,21 @@ do_sys_gettime(void)
     __asm("mov r2, %0" :: "r" (date));
     __asm("mov r1, %0" :: "r" (sp) : "r2", "r3");
     __asm("strd r2, [r1, #8]");
+}
+
+void
+sys_yieldto(struct pcb_s* dest)
+{
+    __asm("mov r0, #5");
+    __asm("mov r1, %0" :: "r" (pcb_s) : "r0");
+    __asm("swi #5");
+}
+
+void
+do_sys_yieldto()
+{
+    struct pcb_s* dest;
+    __asm("ldr r1, [r0, #4]");
+    __asm("mov %0, r1" : "=r" (pcb_s));
 }
 
