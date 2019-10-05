@@ -10,15 +10,10 @@ void user_process_2();
 void
 kmain(void)
 {
-    
     sched_init();
     
-    p1=&pcb1;
-    p2=&pcb2;
-    
-    p1->lr=(void*)user_process_1;
-    p2->lr=(void*)user_process_2;
-    
+    p1=create_process((func_t*) &user_process_1);
+    p2=create_process((func_t*) &user_process_2);
 
     __asm("cps 0x10");
     //**************************************************

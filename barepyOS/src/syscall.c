@@ -125,14 +125,24 @@ do_sys_yieldto()
     
     __asm("cps 0X1F");
     __asm("mov %0, lr" : "=r" (current_process->lr));
+    __asm("mov %0, sp" : "=r" (current_process->sp));
     __asm("cps 0x13");
+    
+    __asm("mrs r0, spsr");
+    __asm("mov %0, r0" : "=r" (current_process->cpsr));
     
     current_process = dest;
     
-    for(int i=0; i<13; i++){
+    for(int i=0; i<13; i++)
         *(sp_svc+i) = current_process->rx[i];
-        *(sp_svc+13) = (int)(current_process->lr);
-    }
+    
+    __asm("cps 0x1F");
+    __asm("mov lr, %0" :: "r" (current_process->lr));
+    __asm("mov sp, %0" :: "r" (current_process->sp));
+    __asm("cps 0x13");
+    
+    __asm("mov r0, %0" :: "r" (current_process->cpsr));
+    __asm("msr spsr, r0");
 }
 
 
