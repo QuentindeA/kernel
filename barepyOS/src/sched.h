@@ -7,6 +7,6 @@ struct pcb_s{
     int* lr;
 };
 
-void test(void);
+void sched_init(void);
 
 #endif

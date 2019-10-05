@@ -5,10 +5,11 @@
 #include <stdint.h>
 
 #define PANIC() do { kernel_panic(__FILE__,__LINE__) ; } while(0)
-//#define ASSERT(exp) do { if(!(exp)) PANIC(); } while(0)
+#define ASSERT(exp) do { if(!(exp)) PANIC(); } while(0)
 
 int unsigned* sp_svc;
-//extern struct pcb_s *current_process;
+extern struct pcb_s *current_process;
+//struct pcb_s *current_process;
 
 void __attribute__((naked))
 C_swi_handler(void)
@@ -114,11 +115,24 @@ sys_yieldto(struct pcb_s* dest)
     __asm("swi #0");
 }
 
+
 void
 do_sys_yieldto()
 {
     struct pcb_s* dest = (void*)*(sp_svc+1);
     for(int i=0; i<13; i++)
-         *(sp_svc+i) = dest->rx[i];
+        current_process->rx[i] = *(sp_svc+i);
+    
+    __asm("cps 0X1F");
+    __asm("mov %0, lr" : "=r" (current_process->lr));
+    __asm("cps 0x13");
+    
+    current_process = dest;
+    
+    for(int i=0; i<13; i++){
+        *(sp_svc+i) = current_process->rx[i];
+        *(sp_svc+13) = (int)(current_process->lr);
+    }
 }
+
 
