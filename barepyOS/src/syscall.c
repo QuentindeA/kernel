@@ -81,9 +81,7 @@ void
 do_sys_settime(void)
 {
     uint64_t date_ms;
-    __asm("mov r0, %0" : : "r" (sp_svc));
-    __asm("ldrd r2, [r0, #8]");
-    __asm("mov r2, %0" : "=r" (date_ms));
+    date_ms = *(uint64_t*)(sp_svc+2);
     set_date_ms(date_ms);
 }
 
@@ -93,9 +91,7 @@ sys_gettime(void)
     uint64_t date;
     __asm("mov r0, #4");
     __asm("swi #0");
-    
     __asm("mov %0, r2" : "=r" (date));
-    
     return date;
 }
 
@@ -107,10 +103,6 @@ do_sys_gettime(void)
     date = get_date_ms();
     *(sp_svc+2) = (int unsigned)(date & 0xFFFFFFFF);
     *(sp_svc+3) = (int unsigned)(date >> 32);
-    
-    __asm("mov r0, %0" :: "r" (date));
-    __asm("mov r3, %0" :: "r" (sp_svc) : "r0", "r1", "r3");
-    __asm("strd r0, [r3, #8]" ::: "r0", "r1", "r3");
     
 }
 
@@ -127,6 +119,6 @@ do_sys_yieldto()
 {
     struct pcb_s* dest = (void*)*(sp_svc+1);
     for(int i=0; i<13; i++)
-        dest->rx[i] = *(sp_svc+i);
+         *(sp_svc+i) = dest->rx[i];
 }
 
