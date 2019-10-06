@@ -1,46 +1,36 @@
+#include "util.h"
 #include "syscall.h"
 #include "sched.h"
 
-struct pcb_s pcb1, pcb2;
-struct pcb_s *p1, *p2;
+#define NB_PROCESS 5
 
-void user_process_1();
-void user_process_2();
+int user_process()
+{
+    int v=0;
+    while(v<5)
+    {
+        v++;
+        sys_yield();
+    }
+    return 0;
+}
 
-void
-kmain(void)
+void kmain( void )
 {
     sched_init();
     
-    p1=create_process((func_t*) &user_process_1);
-    p2=create_process((func_t*) &user_process_2);
-
-    __asm("cps 0x10");
-    //**************************************************
-    //Userland
+    int i;
     
-    sys_yieldto(p1);
-    
-    PANIC();
-}
-
-
-void user_process_1()
-{
-    int v1=5;
-    while(1)
+    for(i=0;i<NB_PROCESS;i++)
     {
-        v1++;
-        sys_yieldto(p2);
+        create_process((func_t *)&user_process);
     }
-}
-
-void user_process_2()
-{
-    int v2=-12;
+    
+    __asm("cps 0x10"); // switch CPU to USER mode
+    // **********************************************************************
+    
     while(1)
     {
-        v2-=2;
-        sys_yieldto(p1);
+        sys_yield();
     }
 }

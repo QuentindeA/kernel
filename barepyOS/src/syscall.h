@@ -17,6 +17,10 @@ void do_sys_settime(void);
 uint64_t sys_gettime(void);
 void do_sys_gettime(void);
 void sys_yieldto(struct pcb_s* dest);
-void do_sys_yieldto();
+void do_sys_yieldto(void);
+void sys_yield(void);
+void do_sys_yield(void);
+void sys_exit(int status);
+void do_sys_exit(void);
 
 #endif
