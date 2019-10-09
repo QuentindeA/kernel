@@ -17,7 +17,7 @@ swi_handler:        .word C_swi_handler
 prefetch_handler:   .word hang
 data_handler:       .word asm_data_handler
 unused_handler:     .word hang
-irq_handler:        .word asm_irq_handler
+irq_handler:        .word C_irq_handler
 fiq_handler:        .word hang
 
 // Make _start global.

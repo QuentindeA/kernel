@@ -192,7 +192,7 @@ sys_exit(int status)
     __asm("mov r0, #7");
     __asm("mov r1, %0" : : "r" (status) : "r0");
     __asm("swi #0");
-    sys_yield();
+
 }
 
 void
@@ -200,6 +200,20 @@ do_sys_exit(void)
 {
     current_process->state = TERMINATED;
     current_process->errorCode = *(sp_svc+1);
-    sys_yield();
+    
+    elect();
+    
+    for(int i=0; i<13; i++)
+        *(sp_svc+i) = current_process->rx[i];
+    
+    __asm("cps 0x1F");
+    __asm("mov lr, %0" :: "r" (current_process->lr));
+    __asm("mov sp, %0" :: "r" (current_process->sp));
+    __asm("cps 0x13");
+    
+    __asm("mov r0, %0" :: "r" (current_process->cpsr));
+    __asm("msr spsr, r0");
+    
+    //pthread_join()
 }
 

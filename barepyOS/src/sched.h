@@ -3,6 +3,7 @@
 
 #define RUNNING 0
 #define TERMINATED 1
+#define GARBAGE 2
 
 typedef int (func_t) (void);
 
@@ -11,8 +12,8 @@ struct pcb_s{
     int* sp;
     int* lr;
     int cpsr;
-    struct pcb_s* n_pcb;
-    struct pcb_s* p_pcb;
+    struct pcb_s* n_pcb; //pcb suivant
+    struct pcb_s* p_pcb; //pcb_precedant
     int state;
     int* pAlloc;
     int errorCode;

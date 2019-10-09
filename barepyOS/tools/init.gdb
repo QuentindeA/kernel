@@ -12,13 +12,13 @@ set history save
 #b *asm_reset_handler
 #b C_irq_handler
 #b asm_swi_handler
-b *C_swi_handler
-b kernel_panic
-b *kmain
+#b *C_swi_handler
+#b kernel_panic
+#b *kmain
 #b *sys_reboot
 #b *do_sys_reboot
-b user_process_1
-b user_process_2
+#b user_process_1
+#b user_process_2
 
 
 source utils.gdb
