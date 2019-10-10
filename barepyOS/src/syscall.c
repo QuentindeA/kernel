@@ -51,6 +51,21 @@ C_swi_handler(void)
     __asm("ldmfd sp!,{r0-r12,pc}^");
 }
 
+void __attribute__((naked))
+C_irq_handler(void)
+{
+    __asm("stmfd sp!,{r0-r12,lr}");
+    __asm("mov %0, sp" : "=r" (sp_svc));
+
+    do_sys_irq_yield();
+    clear_and_set_timer();
+    ENABLE_IRQ();
+    
+    __asm("ldmfd sp!,{r0-r12,pc}^");
+}
+
+// ------------- SVC MODE --------------
+
 void
 sys_reboot(void)
 {
@@ -215,5 +230,42 @@ do_sys_exit(void)
     __asm("msr spsr, r0");
     
     //pthread_join()
+}
+
+// ------------- IRQ MODE --------------
+
+void
+do_sys_irq_yield(void)
+{
+
+    
+    for(int i=0; i<13; i++)
+        current_process->rx[i] = *(sp_svc+i);
+    
+    __asm("cps 0X1F");
+    __asm("mov %0, lr" : "=r" (current_process->lr));
+    __asm("mov %0, sp" : "=r" (current_process->sp));
+    __asm("cps 0x12");
+    
+    __asm("mrs r0, spsr");
+    __asm("mov %0, r0" : "=r" (current_process->cpsr));
+    current_process->lr_irq = (int*)*(sp_svc+13);
+    current_process->lr_irq -= 1;
+    
+    elect();
+    
+    for(int i=0; i<13; i++)
+        *(sp_svc+i) = current_process->rx[i];
+    
+    __asm("cps 0x1F");
+    __asm("mov lr, %0" :: "r" (current_process->lr));
+    __asm("mov sp, %0" :: "r" (current_process->sp));
+    __asm("cps 0x12");
+    
+    __asm("mov r0, %0" :: "r" (current_process->cpsr));
+    __asm("msr spsr, r0");
+    *(sp_svc+13) = (int)current_process->lr_irq;
+    
+
 }
 

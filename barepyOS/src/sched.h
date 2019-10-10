@@ -18,6 +18,7 @@ struct pcb_s{
     int* pAlloc;
     int errorCode;
     func_t* entry;
+    int *lr_irq;
 };
 
 #include "kheap.h"

@@ -13,6 +13,8 @@ sched_init(void)
     current_process = &kmain_process;
     kmain_process.p_pcb=&kmain_process;
     kheap_init();
+    timer_init();
+    ENABLE_IRQ();
 }
 
 struct pcb_s*
@@ -24,6 +26,7 @@ create_process(func_t entry)
      pcb->lr = (int*)start_current_process;
      __asm("mrs  r0, cpsr");
      __asm("mov %0, r0" : "=r" (pcb->cpsr));
+     pcb->cpsr=pcb->cpsr&(0xFFFFFF70);
      
      if(kmain_process.n_pcb==0) //on insere un processus si il est le premier
      {
@@ -43,6 +46,7 @@ create_process(func_t entry)
      pcb->state = RUNNING;
      pcb->errorCode = 0;
      pcb->entry=entry;
+     pcb->lr_irq=(void*)entry;
      return pcb;
 }
 

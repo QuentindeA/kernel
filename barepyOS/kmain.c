@@ -1,33 +1,45 @@
 #include "util.h"
 #include "syscall.h"
 #include "sched.h"
+#include "hw.h"
 
-#define NB_PROCESS 5
-
-int user_process()
+int user_process_1()
 {
-    int v=0;
-    while(v<5)
+    int v1=5;
+    while(1)
     {
-        v++;
-        sys_yield();
+        v1++;
     }
-    return 0;
+}
+int user_process_2()
+{
+    int v2=-12;
+    while(1)
+    {
+        v2-=2;
+    }
+}
+int user_process_3()
+{
+    int v3=0;
+    while(1)
+    {
+        v3+=5;
+    }
 }
 
 void kmain( void )
 {
     sched_init();
     
-    int i;
-    
-    for(i=0;i<NB_PROCESS;i++)
-    {
-        create_process((func_t *)&user_process);
-    }
+    create_process(&user_process_1);
+    create_process(&user_process_2);
+    create_process(&user_process_3);
     
     __asm("cps 0x10"); // switch CPU to USER mode
     // **********************************************************************
+    
+    sys_nop();
     
     while(1)
     {

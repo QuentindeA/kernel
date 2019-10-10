@@ -10,7 +10,7 @@ set history filename ~/.gdb_history
 set history save
 
 #b *asm_reset_handler
-#b C_irq_handler
+#b *C_irq_handler
 #b asm_swi_handler
 #b *C_swi_handler
 #b kernel_panic

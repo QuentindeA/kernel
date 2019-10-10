@@ -8,6 +8,7 @@
 #include <stdint.h>
 
 void __attribute__((naked)) C_swi_handler(void);
+
 void sys_reboot(void);
 void do_sys_reboot(void);
 void sys_nop(void);
@@ -22,5 +23,10 @@ void sys_yield(void);
 void do_sys_yield(void);
 void sys_exit(int status);
 void do_sys_exit(void);
+
+
+void __attribute__((naked)) C_irq_handler(void);
+
+void do_sys_irq_yield(void);
 
 #endif

@@ -77,12 +77,6 @@ io_halt:
     wfi
     bx lr
 
-asm_wsi_handler:
-    b asm_wsi_handler
-
-asm_irq_handler:
-    b asm_irq_handler
-
 hang:
     wfi
     b hang
