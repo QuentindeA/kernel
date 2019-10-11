@@ -12,7 +12,13 @@ sched_init(void)
     terminated_process=0;
     current_process = &kmain_process;
     kmain_process.p_pcb=&kmain_process;
+    
+    #if VMEM
+    vmem_init();
+    #else
     kheap_init();
+    #endif
+    
     timer_init();
     ENABLE_IRQ();
 }

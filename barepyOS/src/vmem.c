@@ -2,28 +2,71 @@
 
 void vmem_init(void)
 {
+    //init physical memory
+    kheap_init();
+    
         // 1. Configure coprocessor registers.
-        configure_mmu_C();       
+    configure_mmu_C();       
         
         //2. Configure page table descriptors
-        init_kern_translation_table();
+    init_kern_translation_table();
     
         //3. De-activate and invalidate the instruction cache.
         //Then, it is possible to re-activate it when activating the MMU.
         // Here is the code for this purpose : mcr p15, 0, r0, c7, c7, 0
+    start_mmu_C();
 }
 
-int
+unsigned int
 init_kern_translation_table(void)
 {
+    int* i;
+    unsigned int entryLevel1;
+    unsigned int entryLevel2;
+
     //initialise the page table: fill the 1st-level et necessary 2nd-level tables
     
-    int* pointerToFisrtLevel = kAlloc_aligned(FIRST_LVL_TT_SIZE);
+    int* pointerToFisrtLevel = kAlloc_aligned(FIRST_LVL_TT_SIZE, 12);
     
     //initialise the frame table
     
     //logical address = physical address for any physical address between 0x0 and __kernel_heap_end__
+    entryLevel1=0;
+    entryLevel2=0;
+    for(i=0; i<__kernel_heap_end__; i++)
+    {
+        if(entryLevel2==256 || entryLevel2==0)
+        {
+            entryLevel2 = 0;
+            entryLevel1++;
+            pointerToFisrtLevel[entryLevel1] = (kAlloc_aligned(SECON_LVL_TT_SIZE, 8) | 1)&0xFFFFFFFD;
+        } | 1)&0xFFFFFFFD
+        pointerToFisrtLevel[entryLevel1][entryLevel2] = ((unsigned int)i  | 1)&0xFFFFFFFD ;
+        entryLevel2++;
+    }
+    
+    for(i=__kernel_heap_end__; i<0x20000000; i+=256)
+        pointerToFisrtLevel[i/256] = 0;
+    
     //logical address = physical adress for any physical address between 0x20000000 and 0x20FFFFFF
+    entryLevel1=0x20000000/256;
+    entryLevel2=0;
+    for(i=0x20000000; i<0x20FFFFFF; i++)
+    {
+        if(entryLevel2==256 || entryLevel2==0)
+        {
+            entryLevel2 = 0;
+            entryLevel1++;
+            pointerToFisrtLevel[entryLevel1] = (kAlloc_aligned(SECON_LVL_TT_SIZE, 4) | 1)&0xFFFFFFFD;
+        }
+        pointerToFisrtLevel[entryLevel1][entryLevel2] = (unsigned int)i ;
+        entryLevel2++;
+    }
+    
+    for(i=0x20FFFFFF; i<=0xFFFFFFFF; i+=256)
+        pointerToFisrtLevel[i/256] = 0;
+    
+
      
     return 0;
 }
