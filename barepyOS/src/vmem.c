@@ -20,54 +20,46 @@ void vmem_init(void)
 unsigned int
 init_kern_translation_table(void)
 {
-    int* i;
     unsigned int entryLevel1;
     unsigned int entryLevel2;
 
     //initialise the page table: fill the 1st-level et necessary 2nd-level tables
     
-    int* pointerToFisrtLevel = kAlloc_aligned(FIRST_LVL_TT_SIZE, 12);
+    int** pointerToFisrtLevel = kAlloc_aligned(FIRST_LVL_TT_SIZE, 12);
     
     //initialise the frame table
     
     //logical address = physical address for any physical address between 0x0 and __kernel_heap_end__
     entryLevel1=0;
     entryLevel2=0;
-    for(i=0; i<__kernel_heap_end__; i++)
+    for(entryLevel1=0; entryLevel1<(__kernel_heap_end__/PAGE_SIZE); entryLevel1)
     {
-        if(entryLevel2==256 || entryLevel2==0)
+        pointerToFisrtLevel[entryLevel1] = (kAlloc_aligned(SECON_LVL_TT_SIZE, 8)|1)&0xFFFFFFFD;
+        for(entryLevel2=0; entryLevel2<SECON_LVL_TT_COUN; entryLevel2++;
         {
-            entryLevel2 = 0;
-            entryLevel1++;
-            pointerToFisrtLevel[entryLevel1] = (kAlloc_aligned(SECON_LVL_TT_SIZE, 8) | 1)&0xFFFFFFFD;
-        } | 1)&0xFFFFFFFD
-        pointerToFisrtLevel[entryLevel1][entryLevel2] = ((unsigned int)i  | 1)&0xFFFFFFFD ;
-        entryLevel2++;
+            pointerToFirstLevel[entryLevel1][entryLevel2] = (entryLevel1*PAGE_SIZE|1)&0xFFFFFFFD;
+            entryLevel2++;
+        }    
+        entryLevel1++;
     }
-    
-    for(i=__kernel_heap_end__; i<0x20000000; i+=256)
-        pointerToFisrtLevel[i/256] = 0;
     
     //logical address = physical adress for any physical address between 0x20000000 and 0x20FFFFFF
-    entryLevel1=0x20000000/256;
-    entryLevel2=0;
-    for(i=0x20000000; i<0x20FFFFFF; i++)
+    for(entryLevel1=0x20000000/PAGE_SIZE; entryLevel1<0x20FFFFFF/PAGE_SIZE; entryLevel1++)
     {
-        if(entryLevel2==256 || entryLevel2==0)
+        pointerToFisrtLevel[entryLevel1] = (kAlloc_aligned(SECON_LVL_TT_SIZE, 8)|1)&0xFFFFFFFD;
+        for(entryLevel2=0; entryLevel2<SECON_LVL_TT_COUN; entryLevel2++;
         {
-            entryLevel2 = 0;
-            entryLevel1++;
-            pointerToFisrtLevel[entryLevel1] = (kAlloc_aligned(SECON_LVL_TT_SIZE, 4) | 1)&0xFFFFFFFD;
-        }
-        pointerToFisrtLevel[entryLevel1][entryLevel2] = (unsigned int)i ;
-        entryLevel2++;
+            pointerToFirstLevel[entryLevel1][entryLevel2] = (entryLevel1*PAGE_SIZE|1)&0xFFFFFFFD;
+            entryLevel2++;
+        }    
+        entryLevel1++;
     }
     
-    for(i=0x20FFFFFF; i<=0xFFFFFFFF; i+=256)
-        pointerToFisrtLevel[i/256] = 0;
-    
-
-     
+    for(entryLevel1=__kernel_heap_end__/PAGE_SIZE; i<0x20000000/PAGE_SIZE; i++)
+        pointerToFisrtLevel[entryLevel1] = 0;
+    for(entryLevel1=0x20FFFFFF/PAGE_SIZE; entryLevel1<0xFFFFFFFF/PAGE_SIZE; entryLevel1++)
+        pointerToFisrtLevel[entryLevel1] = 0;
+        
     return 0;
 }
 
