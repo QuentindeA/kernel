@@ -30,7 +30,6 @@ int user_process_3()
 
 void kmain( void )
 {
-    vmem_init();
     sched_init();
     
     create_process(&user_process_1);

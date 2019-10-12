@@ -1,8 +1,6 @@
 #ifndef _SCHED_H_
 #define _SCHED_H_
 
-#define #VMEM
-
 #define RUNNING 0
 #define TERMINATED 1
 #define GARBAGE 2

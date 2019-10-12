@@ -1,5 +1,6 @@
 #include "sched.h"
 #include "kheap.h"
+#include "vmem.h"
 
 struct pcb_s *current_process;
 struct pcb_s kmain_process;
@@ -27,7 +28,7 @@ struct pcb_s*
 create_process(func_t entry)
 {
      struct pcb_s* pcb = (struct pcb_s*)(kAlloc(sizeof(struct pcb_s)));
-     pcb->pAlloc = (int*)(kAlloc(10000));
+     pcb->pAlloc = (int*)(kAlloc(10000*sizeof(int)));
      pcb->sp = (int*)(pcb->pAlloc+10000-1);
      pcb->lr = (int*)start_current_process;
      __asm("mrs  r0, cpsr");
